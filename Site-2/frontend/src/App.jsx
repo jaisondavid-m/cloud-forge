@@ -5,7 +5,7 @@ import FileTable from './components/FileTable';
 import FilePreviewModal from './components/FilePreviewModal';
 import NotificationToast from './components/NotificationToast';
 import { fetchHealth, fetchStorageStatus, fetchFiles } from './api';
-import { Shield } from 'lucide-react';
+import { Shield, Eye } from 'lucide-react';
 
 const AUTO_REFRESH_INTERVAL = 5000; // 5 seconds
 
