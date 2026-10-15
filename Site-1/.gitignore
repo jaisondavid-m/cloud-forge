@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Production build outputs
+dist/
+frontend/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+!.env.example
+*.tmp
+
+# Storage temp checks (keep sample files if desired, ignore temporary check files)
+.mount_health_check.tmp
+backend/storage/.mount_health_check.tmp
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

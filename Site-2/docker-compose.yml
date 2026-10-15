@@ -1,0 +1,78 @@
+# ============================================================
+# CloudForge Site-2 (Recovery Site) — Docker Compose
+# ============================================================
+# Usage:
+#   docker compose up --build          (foreground)
+#   docker compose up --build -d       (detached)
+#   docker compose down                (stop & remove)
+#
+# On EC2 with EFS mounted at /mnt/efs/shared, update the
+# volume source path below.
+# ============================================================
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cloudforge-site2-backend
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      - shared-storage:/mnt/efs/shared:ro
+    environment:
+      - EFS_MOUNT_PATH=/mnt/efs/shared
+      - HOST=0.0.0.0
+      - PORT=8001
+      - SITE_NAME=Site-2 (Recovery Site)
+      - SITE_ID=site-2
+      - READ_ONLY_MODE=true
+      - FRONTEND_ORIGIN=http://localhost:5174,http://127.0.0.1:5174
+      - MAX_PREVIEW_BYTES=1048576
+      - MAX_FILE_LIST_COUNT=1000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/api/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cloudforge-site2-frontend
+    restart: unless-stopped
+    ports:
+      - "5174:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  shared-storage:
+    driver: local
+    # -----------------------------------------------------------
+    # LOCAL DEVELOPMENT (default):
+    #   Uses a named Docker volume. To test cross-site sync
+    #   locally, use the same named volume as Site-1 or a bind
+    #   mount to Site-1's storage folder:
+    #
+    #   shared-storage:
+    #     driver: local
+    #     driver_opts:
+    #       type: none
+    #       o: bind
+    #       device: /absolute/path/to/Site-1/backend/storage
+    #
+    # EC2 DEPLOYMENT with EFS:
+    #   Bind mount to the actual EFS directory:
+    #
+    #   shared-storage:
+    #     driver: local
+    #     driver_opts:
+    #       type: none
+    #       o: bind
+    #       device: /mnt/efs/shared
+    # -----------------------------------------------------------

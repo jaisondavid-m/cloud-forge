@@ -1,0 +1,19 @@
+{
+  "service": "CloudForge",
+  "project_code": "CF-PS-44",
+  "site": "Site-1",
+  "role": "Primary File Manager",
+  "storage": {
+    "type": "AWS Elastic File System (EFS)",
+    "protocol": "NFSv4.1",
+    "shared_sync": true,
+    "max_upload_size_mb": 10
+  },
+  "peers": [
+    {
+      "site": "Site-2",
+      "role": "Secondary / Recovery File Node",
+      "status": "synchronized"
+    }
+  ]
+}
