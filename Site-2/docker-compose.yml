@@ -43,6 +43,7 @@ services:
     container_name: cloudforge-site2-frontend
     restart: unless-stopped
     ports:
+      - "80:80"
       - "5174:80"
     depends_on:
       backend:

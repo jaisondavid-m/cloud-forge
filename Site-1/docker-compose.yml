@@ -41,6 +41,7 @@ services:
     container_name: cloudforge-site1-frontend
     restart: unless-stopped
     ports:
+      - "80:80"
       - "5173:80"
     depends_on:
       backend:
