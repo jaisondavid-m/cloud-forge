@@ -5,9 +5,6 @@
 #   docker compose up --build          (foreground)
 #   docker compose up --build -d       (detached)
 #   docker compose down                (stop & remove)
-#
-# On EC2 with EFS mounted at /mnt/efs/shared, update the
-# volume source path below.
 # ============================================================
 
 services:
@@ -20,14 +17,15 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - shared-storage:/mnt/efs/shared
+      # Automatically mounts your host EFS path (from .env EFS_MOUNT_PATH, defaulting to /mnt/shared)
+      - ${EFS_MOUNT_PATH:-/mnt/shared}:/mnt/efs/shared
     environment:
       - EFS_MOUNT_PATH=/mnt/efs/shared
       - HOST=0.0.0.0
       - PORT=8000
       - SITE_NAME=Site-1 (Primary)
       - SITE_ID=site-1
-      - FRONTEND_ORIGIN=http://localhost:5173,http://127.0.0.1:5173
+      - FRONTEND_ORIGIN=*
       - MAX_UPLOAD_SIZE_MB=10
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
@@ -47,22 +45,3 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-
-volumes:
-  shared-storage:
-    driver: local
-    # -----------------------------------------------------------
-    # LOCAL DEVELOPMENT (default):
-    #   Uses a named Docker volume. Files persist across restarts.
-    #
-    # EC2 DEPLOYMENT with EFS:
-    #   Replace this volume definition with a bind mount to the
-    #   actual EFS directory:
-    #
-    #   shared-storage:
-    #     driver: local
-    #     driver_opts:
-    #       type: none
-    #       o: bind
-    #       device: /mnt/efs/shared
-    # -----------------------------------------------------------
