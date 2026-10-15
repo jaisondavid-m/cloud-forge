@@ -1,100 +1,77 @@
 import React from 'react';
-import { HardDrive, Server, CheckCircle2, AlertTriangle, Database, ArrowRightLeft } from 'lucide-react';
+import { HardDrive, CheckCircle2, AlertTriangle, ArrowRightLeft, FolderArchive, Layers } from 'lucide-react';
 
-function formatBytes(bytes, decimals = 1) {
-  if (!bytes || bytes === 0) return '0 B';
+export function formatBytes(bytes, decimals = 1) {
+  if (!bytes || bytes <= 0 || isNaN(bytes)) return '0 B';
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
 export default function StorageStatusCard({ status, loading }) {
-  const isMounted = status && status.is_mounted;
-  const isWritable = status && status.writable;
-  const totalBytes = status?.total_bytes || 0;
+  const isMounted = Boolean(status?.is_mounted);
+  const isWritable = Boolean(status?.writable);
   const usedBytes = status?.used_bytes || 0;
-  const freeBytes = status?.free_bytes || 0;
-  const usagePercent = status?.usage_percent || 0;
   const fileCount = status?.file_count ?? 0;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-        <div className="flex items-center space-x-3">
-          <div className={`p-2.5 rounded-lg ${isMounted ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'}`}>
-            <HardDrive className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h2 className="text-sm font-semibold text-slate-900">
-                EFS Shared Volume Status
-              </h2>
-              <span
-                className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  isMounted
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    : 'bg-rose-50 text-rose-700 border border-rose-200'
-                }`}
-              >
-                {isMounted ? (
-                  <>
-                    <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                    <span>Mounted (Active)</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle className="w-3 h-3 text-rose-500" />
-                    <span>Not Mounted</span>
-                  </>
-                )}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Target: <span className="font-medium text-slate-700">AWS Elastic File System</span> • Read & Write Access: {isWritable ? 'Enabled' : 'Disabled'}
-            </p>
-          </div>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* 1. Volume & Mount */}
+      <div className="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs flex items-center space-x-3.5">
+        <div className={`p-2.5 rounded-lg shrink-0 ${isMounted ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+          <HardDrive className="w-5 h-5" />
         </div>
-
-        {/* Sync Indicator Card */}
-        <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200/80 rounded-lg px-3 py-2 text-xs text-slate-600">
-          <ArrowRightLeft className="w-4 h-4 text-purple-600 flex-shrink-0" />
-          <span>
-            Multi-AZ Sync with <strong className="text-slate-800">Site 2</strong> active via EFS
-          </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">EFS Mount Status</p>
+          <div className="flex items-center space-x-1.5 mt-0.5">
+            <span className={`w-2 h-2 rounded-full ${isMounted ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+            <span className="text-sm font-semibold text-slate-900 truncate">
+              {isMounted ? 'Active & Mounted' : 'Not Connected'}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-400 truncate mt-0.5">AWS Elastic File System</p>
         </div>
       </div>
 
-      {/* Storage Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-        {/* Metric 1: Total Stored Files */}
-        <div className="bg-slate-50/70 rounded-lg p-3 border border-slate-100">
-          <span className="text-xs font-medium text-slate-500">Shared Files</span>
-          <div className="flex items-baseline space-x-2 mt-1">
-            <span className="text-2xl font-bold text-slate-900">{fileCount}</span>
-            <span className="text-xs text-slate-500 font-medium">files stored</span>
-          </div>
+      {/* 2. Total Stored Files */}
+      <div className="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs flex items-center space-x-3.5">
+        <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600 shrink-0">
+          <FolderArchive className="w-5 h-5" />
         </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Shared Files</p>
+          <p className="text-xl font-bold text-slate-900 mt-0.5 leading-none">{fileCount}</p>
+          <p className="text-[11px] text-slate-400 truncate mt-1">Available to all nodes</p>
+        </div>
+      </div>
 
-        {/* Metric 2: Storage Usage Progress */}
-        <div className="bg-slate-50/70 rounded-lg p-3 border border-slate-100 col-span-1 sm:col-span-2">
-          <div className="flex justify-between items-center text-xs font-medium mb-1.5">
-            <span className="text-slate-500">Storage Capacity ({usagePercent}%)</span>
-            <span className="text-slate-700 font-semibold">
-              {formatBytes(usedBytes)} used of {formatBytes(totalBytes)}
-            </span>
-          </div>
-          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(Math.max(usagePercent, 1), 100)}%` }}
-            ></div>
-          </div>
-          <div className="flex justify-between items-center text-[11px] text-slate-500 mt-1.5">
-            <span>Free Space: {formatBytes(freeBytes)}</span>
-            <span className="text-slate-400">AWS EFS Elastic Scaling</span>
-          </div>
+      {/* 3. Storage In Use (Elastic Scaling) */}
+      <div className="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs flex items-center space-x-3.5">
+        <div className="p-2.5 rounded-lg bg-indigo-50 text-indigo-600 shrink-0">
+          <Layers className="w-5 h-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Storage Consumed</p>
+          <p className="text-xl font-bold text-slate-900 mt-0.5 leading-none">
+            {formatBytes(usedBytes)}
+          </p>
+          <p className="text-[11px] text-emerald-600 font-medium truncate mt-1">Elastic Auto-Scaling</p>
+        </div>
+      </div>
+
+      {/* 4. Node Mode & Multi-AZ */}
+      <div className="bg-white rounded-xl border border-slate-200/90 p-4 shadow-xs flex items-center space-x-3.5">
+        <div className="p-2.5 rounded-lg bg-emerald-50 text-emerald-600 shrink-0">
+          <ArrowRightLeft className="w-5 h-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">Node Permission</p>
+          <p className="text-sm font-semibold text-emerald-700 mt-0.5 truncate">
+            {isWritable ? 'Read / Write Active' : 'Read-Only Mode'}
+          </p>
+          <p className="text-[11px] text-slate-400 truncate mt-0.5">Syncs to Site-2 in real-time</p>
         </div>
       </div>
     </div>

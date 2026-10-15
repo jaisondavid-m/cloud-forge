@@ -7,7 +7,7 @@ import FilePreviewModal from './components/FilePreviewModal';
 import FileEditorModal from './components/FileEditorModal';
 import NotificationToast from './components/NotificationToast';
 import { fetchHealth, fetchStorageStatus, fetchFiles } from './api';
-import { RefreshCw, Server, ShieldCheck, Database } from 'lucide-react';
+// No unused lucide-react imports needed
 
 export default function App() {
   const [health, setHealth] = useState(null);
@@ -94,29 +94,26 @@ export default function App() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Project Intro / Banner (Blue Theme) */}
-        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
-          <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial-gradient from-blue-500/10 to-transparent pointer-events-none"></div>
-          <div className="relative z-10 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30 text-xs font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-300" />
-                <span>Site 1 • Primary File Manager (Master Node)</span>
-              </span>
-              <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-400/20 text-emerald-200 border border-emerald-300/30 text-xs font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>Read / Write Enabled</span>
-              </span>
-              <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-purple-400/20 text-purple-200 border border-purple-300/30 text-xs font-medium">
-                <span>EFS Source</span>
+        {/* Clean Workspace Header Strip */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200/80">
+          <div>
+            <div className="flex items-center space-x-2.5">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                Primary Storage Manager
+              </h1>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+                Site 1 (Primary)
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Primary Site — Shared Cloud Storage
-            </h1>
-            <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-              Active read/write storage node connected to the shared AWS Elastic File System (EFS). All files uploaded or edited here are instantly propagated to <strong>Site 2 (Recovery Site)</strong> in real time.
+            <p className="text-xs text-slate-500 mt-1">
+              Active read/write master volume on AWS Elastic File System (EFS) • Propagates to Site 2 in real-time
             </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span>Read / Write Active</span>
+            </span>
           </div>
         </div>
 

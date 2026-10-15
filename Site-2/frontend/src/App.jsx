@@ -5,7 +5,7 @@ import FileTable from './components/FileTable';
 import FilePreviewModal from './components/FilePreviewModal';
 import NotificationToast from './components/NotificationToast';
 import { fetchHealth, fetchStorageStatus, fetchFiles } from './api';
-import { Shield, ShieldCheck, Eye, RefreshCw, HardDrive, CheckCircle2 } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 const AUTO_REFRESH_INTERVAL = 5000; // 5 seconds
 
@@ -91,31 +91,40 @@ export default function App() {
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Recovery Site Distinct Banner (Purple / Violet Theme) */}
-        <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
-          <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial-gradient from-purple-500/10 to-transparent pointer-events-none"></div>
-          <div className="relative z-10 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/30 text-xs font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5 text-purple-300" />
-                <span>Site 2 • Recovery Site (Secondary Node)</span>
-              </span>
-              <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/30 text-xs font-medium">
-                <Shield className="w-3.5 h-3.5 text-amber-300" />
-                <span>Read-Only Mode</span>
-              </span>
-              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-400/20 text-emerald-200 border border-emerald-300/30 text-xs font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Auto-Sync Active (5s)</span>
+        {/* Clean DR Workspace Header Strip */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200/80">
+          <div>
+            <div className="flex items-center space-x-2.5">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+                Recovery Site — Storage Mirror
+              </h1>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 border border-purple-200">
+                Site 2 (DR Replica)
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Recovery Site — Shared Cloud Storage
-            </h1>
-            <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-              Read-only disaster recovery instance connected to the shared AWS Elastic File System (EFS). Files uploaded or modified on <strong>Site 1 (Primary)</strong> appear here in real-time without manual synchronization.
+            <p className="text-xs text-slate-500 mt-1">
+              Read-only secondary node mirroring AWS Elastic File System (EFS) • Auto-syncing from Site 1
             </p>
           </div>
+          <div className="flex items-center space-x-2">
+            <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-xs font-medium shadow-xs">
+              <Shield className="w-3.5 h-3.5 text-amber-600" />
+              <span>Read-Only Protected</span>
+            </span>
+          </div>
+        </div>
+
+        {/* DR Protection Notice Strip */}
+        <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs text-amber-800">
+          <div className="flex items-center space-x-2">
+            <Shield className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              <strong>Disaster Recovery Mode:</strong> File uploads and edits are restricted to Site 1 (Primary). All changes sync here automatically every 5 seconds.
+            </span>
+          </div>
+          <span className="hidden md:inline-block font-mono text-[11px] text-amber-700/80 bg-amber-100/60 px-2 py-0.5 rounded border border-amber-200">
+            HTTP 403 Enforced
+          </span>
         </div>
 
         {/* EFS Storage Status Card */}
