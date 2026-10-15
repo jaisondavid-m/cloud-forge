@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Header from './components/Header';
 import StorageStatusCard from './components/StorageStatusCard';
-import VerificationPanel from './components/VerificationPanel';
 import FileTable from './components/FileTable';
 import FilePreviewModal from './components/FilePreviewModal';
 import NotificationToast from './components/NotificationToast';
 import { fetchHealth, fetchStorageStatus, fetchFiles } from './api';
-import { Shield, ShieldCheck, Eye } from 'lucide-react';
+import { Shield, ShieldCheck, Eye, RefreshCw, HardDrive, CheckCircle2 } from 'lucide-react';
 
 const AUTO_REFRESH_INTERVAL = 5000; // 5 seconds
 
@@ -18,7 +17,6 @@ export default function App() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
   const [notifications, setNotifications] = useState([]);
-  const [lastRefresh, setLastRefresh] = useState(null);
   const [countdown, setCountdown] = useState(5);
   const countdownRef = useRef(5);
 
@@ -30,15 +28,6 @@ export default function App() {
   const dismissNotification = useCallback((id) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   }, []);
-
-  const formatTimestamp = () => {
-    return new Intl.DateTimeFormat('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: true,
-    }).format(new Date());
-  };
 
   const loadData = useCallback(async (isManualRefresh = false) => {
     if (isManualRefresh) setIsRefreshing(true);
@@ -54,10 +43,8 @@ export default function App() {
       if (sData) setStorageStatus(sData);
       if (fData && fData.files) setFiles(fData.files);
 
-      setLastRefresh(formatTimestamp());
-
       if (isManualRefresh) {
-        addNotification('Shared EFS storage refreshed. Latest data from Site 1 loaded.', 'success');
+        addNotification('Shared EFS storage refreshed. Latest files from Site 1 loaded.', 'success');
       }
     } catch (err) {
       if (isManualRefresh) {
@@ -104,32 +91,29 @@ export default function App() {
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Recovery Site Banner */}
+        {/* Recovery Site Distinct Banner (Purple / Violet Theme) */}
         <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
           <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial-gradient from-purple-500/10 to-transparent pointer-events-none"></div>
-          <div className="relative z-10 max-w-2xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-purple-200 mb-3">
-              <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
-              <span>CF-PS-44 • Recovery Node (Read-Only)</span>
+          <div className="relative z-10 max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/30 text-xs font-semibold">
+                <ShieldCheck className="w-3.5 h-3.5 text-purple-300" />
+                <span>Site 2 • Recovery Site (Secondary Node)</span>
+              </span>
+              <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/30 text-xs font-medium">
+                <Shield className="w-3.5 h-3.5 text-amber-300" />
+                <span>Read-Only Mode</span>
+              </span>
+              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-emerald-400/20 text-emerald-200 border border-emerald-300/30 text-xs font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Auto-Sync Active (5s)</span>
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
               Recovery Site — Shared Cloud Storage
             </h1>
             <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-              Read-only access to files synchronized via AWS Elastic File System (EFS). Files uploaded or edited on Site 1 (Primary) are visible here in real-time. This instance auto-refreshes every 5 seconds.
-            </p>
-          </div>
-        </div>
-
-        {/* Read-Only Warning Banner */}
-        <div className="flex items-center space-x-3 px-5 py-3.5 bg-amber-50 border border-amber-200 rounded-xl">
-          <Shield className="w-5 h-5 text-amber-600 flex-shrink-0" />
-          <div>
-            <p className="text-sm font-semibold text-amber-900">
-              Read-only Recovery Site — file modifications are disabled.
-            </p>
-            <p className="text-xs text-amber-700 mt-0.5">
-              Upload, edit, delete, rename, and overwrite operations are blocked at both the UI and API level. All modification endpoints return HTTP 403 Forbidden.
+              Read-only disaster recovery instance connected to the shared AWS Elastic File System (EFS). Files uploaded or modified on <strong>Site 1 (Primary)</strong> appear here in real-time without manual synchronization.
             </p>
           </div>
         </div>
@@ -137,16 +121,7 @@ export default function App() {
         {/* EFS Storage Status Card */}
         <StorageStatusCard status={storageStatus} />
 
-        {/* Verification Panel */}
-        <VerificationPanel
-          health={health}
-          storageStatus={storageStatus}
-          fileCount={files.length}
-          lastRefresh={lastRefresh}
-          isRefreshing={isRefreshing}
-        />
-
-        {/* Shared Files Table */}
+        {/* Shared Files Table (Read-Only) */}
         <FileTable
           files={files}
           isLoading={isLoadingFiles}
